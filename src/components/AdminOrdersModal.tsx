@@ -5,10 +5,13 @@ import { PRODUCTS } from '../data/products';
 import { INGREDIENTS } from '../data/ingredients';
 import { FAQS } from '../data/testimonials';
 import { OrderStatus } from '../types';
-import { X, ShieldCheck, DollarSign, Package, User, Phone, MapPin, Search } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { X, ShieldCheck, DollarSign, Package, User, Phone, MapPin, Search, PhoneCall, Mail, MessageCircle } from 'lucide-react';
 
 export const AdminOrdersModal: React.FC = () => {
-  const { isAdminOpen, setIsAdminOpen, orders, updateOrderStatus } = useCart();
+  const { isAdminOpen, setIsAdminOpen, orders, updateOrderStatus, generateWhatsAppLink } = useCart();
+  const { leads } = useAuth();
+  const [activeTab, setActiveTab] = useState<'orders' | 'leads'>('orders');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -78,107 +81,196 @@ export const AdminOrdersModal: React.FC = () => {
           </div>
         </div>
 
-        {/* Controls: Search & Filter */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-white/40 absolute left-3 top-3.5" />
-            <input
-              type="text"
-              placeholder="Search by Order ID, Name, or Mobile..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-xs text-white focus:outline-none focus:border-[#E8D85B]"
-            />
-          </div>
-
-          <div className="flex space-x-2 overflow-x-auto pb-1">
-            <button
-              onClick={() => setFilterStatus('all')}
-              className={`px-3 py-2 rounded-xl text-xs font-bold uppercase transition-all whitespace-nowrap ${
-                filterStatus === 'all' ? 'bg-[#E8D85B] text-[#0D1711]' : 'bg-white/5 text-white/70 hover:bg-white/10'
-              }`}
-            >
-              All ({orders.length})
-            </button>
-            {statuses.map((s) => (
-              <button
-                key={s}
-                onClick={() => setFilterStatus(s)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold uppercase transition-all whitespace-nowrap ${
-                  filterStatus === s ? 'bg-[#E8D85B] text-[#0D1711]' : 'bg-white/5 text-white/70 hover:bg-white/10'
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
+        {/* Hub Tabs: Orders vs Callback Leads */}
+        <div className="flex border-b border-white/10 mb-6">
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`pb-3 px-4 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center space-x-2 ${
+              activeTab === 'orders'
+                ? 'border-[#E8D85B] text-[#E8D85B]'
+                : 'border-transparent text-white/60 hover:text-white'
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>Customer Orders ({orders.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('leads')}
+            className={`pb-3 px-4 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center space-x-2 ${
+              activeTab === 'leads'
+                ? 'border-[#E8D85B] text-[#E8D85B]'
+                : 'border-transparent text-white/60 hover:text-white'
+            }`}
+          >
+            <PhoneCall className="w-4 h-4" />
+            <span>Consultation & Callback Leads ({leads.length})</span>
+          </button>
         </div>
 
-        {/* Orders Table / Cards */}
-        <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
-          {filteredOrders.length === 0 ? (
-            <div className="text-center py-12 text-xs text-white/40">
-              No orders found matching the filter criteria.
-            </div>
-          ) : (
-            filteredOrders.map((ord) => (
-              <div key={ord.orderId} className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs border-b border-white/5 pb-2">
-                  <div className="flex items-center space-x-3">
-                    <span className="font-black text-[#E8D85B] font-mono text-sm">#{ord.orderId}</span>
-                    <span className="text-white/50">{ord.orderDate}</span>
-                  </div>
-
-                  {/* Status Switcher Dropdown */}
-                  <div className="flex items-center space-x-2">
-                    <span className="text-white/60 text-[11px]">Update Status:</span>
-                    <select
-                      value={ord.orderStatus}
-                      onChange={(e) => updateOrderStatus(ord.orderId, e.target.value as OrderStatus)}
-                      className="px-2.5 py-1 rounded-lg bg-[#163020] border border-[#E8D85B]/40 text-xs font-bold text-[#E8D85B] focus:outline-none"
-                    >
-                      {statuses.map((st) => (
-                        <option key={st} value={st}>
-                          {st.toUpperCase()}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                  <div>
-                    <span className="text-white/50 block">Customer:</span>
-                    <span className="font-bold text-white">{ord.customerName}</span>
-                    <p className="text-white/70">{ord.mobileNumber}</p>
-                  </div>
-
-                  <div>
-                    <span className="text-white/50 block">Delivery To:</span>
-                    <p className="text-white/80 line-clamp-2">
-                      {ord.address.city}, {ord.address.state} - {ord.address.pincode}
-                    </p>
-                  </div>
-
-                  <div>
-                    <span className="text-white/50 block">Amount & Payment:</span>
-                    <span className="font-bold text-[#E8D85B]">₹{ord.total}</span>
-                    <span className="text-white/60 ml-2 uppercase">({ord.paymentMethod} • {ord.paymentStatus})</span>
-                  </div>
-                </div>
-
-                {/* Items preview */}
-                <div className="pt-2 border-t border-white/5 flex flex-wrap gap-2 text-[11px] text-white/70">
-                  {ord.items.map((it, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded bg-[#163020] border border-white/10">
-                      {it.quantity}x {it.productName} ({it.netQuantity})
-                    </span>
-                  ))}
-                </div>
+        {activeTab === 'leads' ? (
+          /* LEADS VIEW */
+          <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+            {leads.length === 0 ? (
+              <div className="text-center py-12 text-xs text-white/50 space-y-2 bg-white/5 rounded-2xl p-6">
+                <p>No consultation or callback inquiries captured yet.</p>
+                <p className="text-[11px] text-white/40">Inquiries submitted via the consultation section or Book Callback modal will appear here instantly.</p>
               </div>
-            ))
-          )}
-        </div>
+            ) : (
+              leads.map((lead) => (
+                <div key={lead.id} className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-2 text-xs">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono text-[#E8D85B] font-bold">#{lead.id}</span>
+                      <span className="text-white/50 text-[11px]">• {lead.createdAt}</span>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-950/80 text-amber-300 border border-amber-500/30">
+                      {lead.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                      <span className="text-white/50 text-[11px] block">Customer:</span>
+                      <span className="font-bold text-white text-sm">{lead.name}</span>
+                      <p className="text-[#E8D85B] font-mono mt-0.5">{lead.countryCode} {lead.mobile}</p>
+                      <p className="text-white/60 text-[11px]">{lead.email}</p>
+                    </div>
+
+                    <div>
+                      <span className="text-white/50 text-[11px] block">Health Goal / Package:</span>
+                      <span className="text-white font-medium block mt-0.5">{lead.wellnessGoal}</span>
+                      <span className="text-white/50 text-[11px] mt-1 block">Slot: {lead.preferredTime}</span>
+                    </div>
+
+                    <div className="flex flex-col justify-between items-start sm:items-end">
+                      {lead.notes && (
+                        <p className="text-[11px] text-white/70 italic line-clamp-2 bg-black/30 p-2 rounded-lg border border-white/5 mb-2">
+                          "{lead.notes}"
+                        </p>
+                      )}
+                      <a
+                        href={`https://wa.me/${lead.countryCode.replace(/\D/g, '')}${lead.mobile}?text=${encodeURIComponent(
+                          `Hello ${lead.name}, this is Amrut Sanjeevani wellness desk regarding your consultation inquiry (#${lead.id}). How may we assist your routine?`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-[#25D366] text-[#0D1711] font-bold text-xs flex items-center space-x-1.5 hover:scale-105 transition-transform"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>Chat on WhatsApp</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        ) : (
+          /* ORDERS VIEW */
+          <>
+            {/* Controls: Search & Filter */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-white/40 absolute left-3 top-3.5" />
+                <input
+                  type="text"
+                  placeholder="Search by Order ID, Name, or Mobile..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-xs text-white focus:outline-none focus:border-[#E8D85B]"
+                />
+              </div>
+
+              <div className="flex space-x-2 overflow-x-auto pb-1">
+                <button
+                  onClick={() => setFilterStatus('all')}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold uppercase transition-all whitespace-nowrap ${
+                    filterStatus === 'all' ? 'bg-[#E8D85B] text-[#0D1711]' : 'bg-white/5 text-white/70 hover:bg-white/10'
+                  }`}
+                >
+                  All ({orders.length})
+                </button>
+                {statuses.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setFilterStatus(s)}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold uppercase transition-all whitespace-nowrap ${
+                      filterStatus === s ? 'bg-[#E8D85B] text-[#0D1711]' : 'bg-white/5 text-white/70 hover:bg-white/10'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Orders Table / Cards */}
+            <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+              {filteredOrders.length === 0 ? (
+                <div className="text-center py-12 text-xs text-white/40">
+                  No orders found matching the filter criteria.
+                </div>
+              ) : (
+                filteredOrders.map((ord) => (
+                  <div key={ord.orderId} className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs border-b border-white/5 pb-2">
+                      <div className="flex items-center space-x-3">
+                        <span className="font-black text-[#E8D85B] font-mono text-sm">#{ord.orderId}</span>
+                        <span className="text-white/50">{ord.orderDate}</span>
+                      </div>
+
+                      {/* Status Switcher Dropdown */}
+                      <div className="flex items-center space-x-2">
+                        <span className="text-white/60 text-[11px]">Update Status:</span>
+                        <select
+                          value={ord.orderStatus}
+                          onChange={(e) => updateOrderStatus(ord.orderId, e.target.value as OrderStatus)}
+                          className="px-2.5 py-1 rounded-lg bg-[#163020] border border-[#E8D85B]/40 text-xs font-bold text-[#E8D85B] focus:outline-none"
+                        >
+                          {statuses.map((st) => (
+                            <option key={st} value={st}>
+                              {st.toUpperCase()}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div>
+                        <span className="text-white/50 block">Customer:</span>
+                        <span className="font-bold text-white">{ord.customerName}</span>
+                        <p className="text-white/70">{ord.mobileNumber}</p>
+                      </div>
+
+                      <div>
+                        <span className="text-white/50 block">Delivery To:</span>
+                        <p className="text-white/80 line-clamp-2">
+                          {ord.address.city}, {ord.address.state} - {ord.address.pincode}
+                        </p>
+                      </div>
+
+                      <div>
+                        <span className="text-white/50 block">Amount & Payment:</span>
+                        <span className="font-bold text-[#E8D85B]">₹{ord.total}</span>
+                        <span className="text-white/60 ml-2 uppercase">({ord.paymentMethod} • {ord.paymentStatus})</span>
+                      </div>
+                    </div>
+
+                    {/* Items preview */}
+                    <div className="pt-2 border-t border-white/5 flex flex-wrap gap-2 text-[11px] text-white/70">
+                      {ord.items.map((it, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded bg-[#163020] border border-white/10">
+                          {it.quantity}x {it.productName} ({it.netQuantity})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        )}
 
       </motion.div>
     </div>

@@ -26,8 +26,45 @@ export const ProductDetailModal: React.FC = () => {
   const [pincode, setPincode] = useState('');
   const [pincodeStatus, setPincodeStatus] = useState<string | null>(null);
 
+  const [selectedVariantId, setSelectedVariantId] = useState<string>(() => {
+    if (selectedProductModal?.selectedVariantId) return selectedProductModal.selectedVariantId;
+    if (selectedProductModal?.variants && selectedProductModal.variants.length > 0) {
+      return selectedProductModal.variants[0].id;
+    }
+    return '';
+  });
+
+  // Keep variant in sync when active modal product updates
+  React.useEffect(() => {
+    if (selectedProductModal?.selectedVariantId) {
+      setSelectedVariantId(selectedProductModal.selectedVariantId);
+    } else if (selectedProductModal?.variants && selectedProductModal.variants.length > 0) {
+      setSelectedVariantId(selectedProductModal.variants[0].id);
+    }
+  }, [selectedProductModal]);
+
   if (!selectedProductModal) return null;
   const prod = selectedProductModal;
+
+  const activeVariant = prod.variants ? prod.variants.find((v) => v.id === selectedVariantId) || prod.variants[0] : null;
+
+  const currentPrice = activeVariant ? activeVariant.price : prod.price;
+  const currentOriginalPrice = activeVariant ? activeVariant.originalPrice : prod.originalPrice;
+  const currentNetQuantity = activeVariant ? activeVariant.netQuantity : prod.netQuantity;
+  const currentServings = activeVariant ? activeVariant.servings : prod.servings;
+  const savingsAmount = currentOriginalPrice - currentPrice;
+  const savingsPercent = Math.round((savingsAmount / currentOriginalPrice) * 100);
+
+  const variantConfiguredProduct = activeVariant ? {
+    ...prod,
+    id: `${prod.id.replace(/-500g|-1kg/g, '')}-${activeVariant.id}`,
+    name: `${prod.name.replace(/ \(500g\)|\(1 Kg\)/g, '')} (${activeVariant.label})`,
+    netQuantity: activeVariant.netQuantity,
+    servings: activeVariant.servings,
+    price: activeVariant.price,
+    originalPrice: activeVariant.originalPrice,
+    selectedVariantId: activeVariant.id,
+  } : prod;
 
   const handleCheckPincode = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +141,7 @@ export const ProductDetailModal: React.FC = () => {
                 {prod.name}
               </h2>
               <p className="text-xs text-white/60 mt-0.5">
-                Net Quantity: <strong>{prod.netQuantity}</strong> • {prod.servings}
+                Net Quantity: <strong className="text-[#E8D85B]">{currentNetQuantity}</strong> • {currentServings}
               </p>
             </div>
 
@@ -123,16 +160,57 @@ export const ProductDetailModal: React.FC = () => {
               </span>
             </div>
 
+            {/* Weight / Size Variant Selection (if available) */}
+            {prod.variants && prod.variants.length > 0 && (
+              <div className="p-3.5 rounded-2xl bg-[#163020]/70 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-white/80 uppercase tracking-wider">
+                  <span>Available Size & Weight:</span>
+                  {activeVariant?.badge && (
+                    <span className="text-[10px] text-[#E8D85B] font-semibold">
+                      {activeVariant.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {prod.variants.map((v) => {
+                    const isSelected = activeVariant?.id === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSelectedVariantId(v.id)}
+                        className={`py-2.5 px-3 rounded-xl text-left transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-[#E8D85B] text-[#0D1711] border-[#E8D85B] shadow-md shadow-[#E8D85B]/20 scale-[1.02]'
+                            : 'bg-white/5 text-[#F7F3E8] border-white/15 hover:border-[#E8D85B]/50 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-extrabold text-xs">{v.label}</span>
+                          <span className={`text-xs font-mono font-bold ${isSelected ? 'text-[#0D1711]' : 'text-[#E8D85B]'}`}>
+                            ₹{v.price}
+                          </span>
+                        </div>
+                        <span className={`text-[10px] block mt-0.5 ${isSelected ? 'text-[#0D1711]/80' : 'text-white/60'}`}>
+                          {v.sublabel} ({v.servings.split('(')[0].trim()})
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Price Box */}
             <div className="flex items-baseline space-x-3 p-4 rounded-2xl bg-[#163020] border border-white/10">
               <span className="text-3xl font-black text-[#E8D85B]">
-                ₹{prod.price}
+                ₹{currentPrice}
               </span>
               <span className="text-base text-white/50 line-through">
-                ₹{prod.originalPrice}
+                ₹{currentOriginalPrice}
               </span>
               <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-full ml-auto">
-                Save ₹{prod.originalPrice - prod.price} (33% Off)
+                Save ₹{savingsAmount} ({savingsPercent}% Off)
               </span>
             </div>
 
@@ -161,7 +239,7 @@ export const ProductDetailModal: React.FC = () => {
                 </div>
 
                 <span className="text-xs text-white/60">
-                  Total: <strong>₹{prod.price * quantity}</strong>
+                  Total: <strong>₹{currentPrice * quantity}</strong>
                 </span>
               </div>
             </div>
@@ -170,14 +248,14 @@ export const ProductDetailModal: React.FC = () => {
             <div className="space-y-2.5 pt-2">
               <div className="grid grid-cols-2 gap-3">
                 <button
-                  onClick={() => addToCart(prod, quantity)}
+                  onClick={() => addToCart(variantConfiguredProduct, quantity)}
                   className="py-3.5 px-4 rounded-xl glass-panel border border-white/20 hover:border-[#E8D85B]/50 text-white font-bold text-xs flex items-center justify-center space-x-2 transition-colors cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4 text-[#E8D85B]" />
                   <span>ADD TO CART</span>
                 </button>
                 <button
-                  onClick={() => buyNow(prod, quantity)}
+                  onClick={() => buyNow(variantConfiguredProduct, quantity)}
                   className="py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#E8D85B] via-[#D7A84B] to-[#E8D85B] text-[#0D1711] font-bold text-xs hover:scale-[1.02] transition-transform flex items-center justify-center space-x-2 shadow-lg shadow-[#E8D85B]/20 cursor-pointer"
                 >
                   <span>BUY NOW</span>
@@ -187,7 +265,7 @@ export const ProductDetailModal: React.FC = () => {
 
               {/* Order via WhatsApp direct button */}
               <a
-                href={generateWhatsAppLink(prod, quantity)}
+                href={generateWhatsAppLink(variantConfiguredProduct, quantity)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-2.5 rounded-xl bg-[#25D366]/15 border border-[#25D366]/40 text-[#25D366] font-semibold text-xs flex items-center justify-center space-x-2 hover:bg-[#25D366]/25 transition-colors"

@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { CartProvider, useCart } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { HeroProductReveal } from './components/HeroProductReveal';
@@ -12,6 +13,7 @@ import { AboutSection } from './components/AboutSection';
 import { IngredientsSection, IngredientImmersiveSection } from './components/IngredientsSection';
 import { WhySection, HowToUseSection, LifestyleSection } from './components/WhySection';
 import { TestimonialsSection, ProductShowcaseSection } from './components/TestimonialsSection';
+import { LeadCaptureSection } from './components/LeadCaptureSection';
 import { FaqSection } from './components/FaqSection';
 import { ContactSection, Footer } from './components/ContactSection';
 import { CartDrawer, ShopView } from './components/CartDrawer';
@@ -64,6 +66,7 @@ const MainAppContent: React.FC = () => {
             <LifestyleSection />
             <TestimonialsSection />
             <ProductShowcaseSection />
+            <LeadCaptureSection />
             <FaqSection />
             <ContactSection />
           </>
@@ -94,8 +97,10 @@ const MainAppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <CartProvider>
-      <MainAppContent />
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <MainAppContent />
+      </CartProvider>
+    </AuthProvider>
   );
 }

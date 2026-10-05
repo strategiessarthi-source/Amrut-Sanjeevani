@@ -7,6 +7,27 @@ import { ArrowRight, ShoppingBag, Sparkles, Star, ShieldCheck, Heart } from 'luc
 export const HeroProductReveal: React.FC = () => {
   const { addToCart, buyNow, setSelectedProductModal, setActiveView } = useCart();
   const product = PRODUCTS[0];
+  const [selectedVariantId, setSelectedVariantId] = React.useState<string>('500g');
+
+  const activeVariant = product.variants
+    ? product.variants.find((v) => v.id === selectedVariantId) || product.variants[0]
+    : null;
+
+  const currentPrice = activeVariant ? activeVariant.price : product.price;
+  const currentOriginalPrice = activeVariant ? activeVariant.originalPrice : product.originalPrice;
+  const currentNetQuantity = activeVariant ? activeVariant.netQuantity : product.netQuantity;
+  const currentServings = activeVariant ? activeVariant.servings : product.servings;
+
+  const variantConfiguredProduct = activeVariant ? {
+    ...product,
+    id: `${product.id}-${activeVariant.id}`,
+    name: `${product.name} (${activeVariant.label})`,
+    netQuantity: activeVariant.netQuantity,
+    servings: activeVariant.servings,
+    price: activeVariant.price,
+    originalPrice: activeVariant.originalPrice,
+    selectedVariantId: activeVariant.id,
+  } : product;
 
   return (
     <section id="product-reveal" className="relative py-20 md:py-32 bg-[#0D1711] overflow-hidden border-t border-white/5">
@@ -125,7 +146,7 @@ export const HeroProductReveal: React.FC = () => {
               whileHover={{ scale: 1.03 }}
               transition={{ duration: 0.3 }}
               className="relative z-10 w-64 sm:w-80 rounded-3xl p-6 glass-panel border border-[#E8D85B]/30 shadow-2xl shadow-[#163020] text-center flex flex-col items-center cursor-pointer group"
-              onClick={() => setSelectedProductModal(product)}
+              onClick={() => setSelectedProductModal(variantConfiguredProduct)}
             >
               <div className="absolute top-4 right-4 bg-[#E8D85B] text-[#0D1711] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                 Signature
@@ -145,7 +166,7 @@ export const HeroProductReveal: React.FC = () => {
                 {product.name}
               </h3>
               <p className="text-xs text-[#E8D85B] font-medium tracking-wide">
-                Net Vol: {product.netQuantity} • 30+ Servings
+                Net Vol: {currentNetQuantity} • {currentServings.split('(')[0].trim()}
               </p>
 
               {/* Rating */}
@@ -158,18 +179,44 @@ export const HeroProductReveal: React.FC = () => {
                 <span className="text-xs font-semibold text-white/80">4.9/5 ({product.reviewCount})</span>
               </div>
 
+              {/* Weight / Size Variant Quick Selector */}
+              {product.variants && (
+                <div className="w-full mt-3 grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-white/5 border border-white/10">
+                  {product.variants.map((v: any) => {
+                    const isSelected = activeVariant?.id === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedVariantId(v.id);
+                        }}
+                        className={`py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#E8D85B] text-[#0D1711] shadow-sm'
+                            : 'text-white/70 hover:text-white'
+                        }`}
+                      >
+                        {v.label} (₹{v.price})
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Price & Action */}
-              <div className="w-full mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-white/50 line-through mr-1.5">₹{product.originalPrice}</span>
-                  <span className="text-lg font-extrabold text-[#E8D85B]">₹{product.price}</span>
+              <div className="w-full mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                <div className="text-left">
+                  <span className="text-xs text-white/50 line-through mr-1.5">₹{currentOriginalPrice}</span>
+                  <span className="text-lg font-extrabold text-[#E8D85B]">₹{currentPrice}</span>
                 </div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    addToCart(product);
+                    addToCart(variantConfiguredProduct);
                   }}
-                  className="p-2.5 rounded-full bg-gradient-to-r from-[#E8D85B] to-[#D7A84B] text-[#0D1711] font-bold hover:scale-110 transition-transform shadow-md"
+                  className="p-2.5 rounded-full bg-gradient-to-r from-[#E8D85B] to-[#D7A84B] text-[#0D1711] font-bold hover:scale-110 transition-transform shadow-md cursor-pointer"
                   title="Add to Cart"
                 >
                   <ShoppingBag className="w-4 h-4" />

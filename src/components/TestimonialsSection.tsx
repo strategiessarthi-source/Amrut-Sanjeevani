@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { TESTIMONIALS } from '../data/testimonials';
 import { PRODUCTS } from '../data/products';
-import { Star, CheckCircle, Quote } from 'lucide-react';
+import { Star, CheckCircle, Quote, PhoneCall } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export const TestimonialsSection: React.FC = () => {
@@ -97,10 +97,32 @@ export const TestimonialsSection: React.FC = () => {
 };
 
 export const ProductShowcaseSection: React.FC = () => {
-  const { addToCart, buyNow, setSelectedProductModal, setActiveView } = useCart();
+  const { addToCart, buyNow, setSelectedProductModal, setActiveView, setIsBookingOpen } = useCart();
   const [selectedPackIndex, setSelectedPackIndex] = React.useState(0);
+  const [selectedVariantId, setSelectedVariantId] = React.useState<string>('500g');
   const products = PRODUCTS;
   const currentProduct = products[selectedPackIndex];
+
+  const activeVariant = currentProduct.variants
+    ? currentProduct.variants.find((v: any) => v.id === selectedVariantId) || currentProduct.variants[0]
+    : null;
+
+  const displayPrice = activeVariant ? activeVariant.price : currentProduct.price;
+  const displayOriginalPrice = activeVariant ? activeVariant.originalPrice : currentProduct.originalPrice;
+  const displayNetQuantity = activeVariant ? activeVariant.netQuantity : currentProduct.netQuantity;
+  const displayServings = activeVariant ? activeVariant.servings : currentProduct.servings;
+  const savings = displayOriginalPrice - displayPrice;
+
+  const variantConfiguredProduct: any = activeVariant ? {
+    ...currentProduct,
+    id: `${currentProduct.id}-${activeVariant.id}`,
+    name: `${currentProduct.name} (${activeVariant.label})`,
+    netQuantity: activeVariant.netQuantity,
+    servings: activeVariant.servings,
+    price: activeVariant.price,
+    originalPrice: activeVariant.originalPrice,
+    selectedVariantId: activeVariant.id,
+  } : currentProduct;
 
   return (
     <section className="py-20 md:py-32 bg-gradient-to-b from-[#0D1711] via-[#163020] to-[#0D1711] text-[#F7F3E8] relative overflow-hidden border-t border-white/5">
@@ -123,7 +145,7 @@ export const ProductShowcaseSection: React.FC = () => {
         </div>
 
         {/* Pack Selector Tabs */}
-        <div className="flex items-center justify-center space-x-2 sm:space-x-4 mb-10">
+        <div className="flex items-center justify-center space-x-2 sm:space-x-4 mb-10 flex-wrap gap-y-2">
           {products.map((p: any, i: number) => (
             <button
               key={p.id}
@@ -134,7 +156,7 @@ export const ProductShowcaseSection: React.FC = () => {
                   : 'glass-panel text-white/80 hover:text-white'
               }`}
             >
-              {p.netQuantity} {p.badge ? `• ${p.badge}` : ''}
+              {p.variants ? 'Original Blend (500g / 1 Kg)' : p.netQuantity} {p.badge ? `• ${p.badge}` : ''}
             </button>
           ))}
         </div>
@@ -169,13 +191,54 @@ export const ProductShowcaseSection: React.FC = () => {
                 {currentProduct.name}
               </h3>
               <p className="text-xs sm:text-sm text-[#E8D85B] font-medium mt-1">
-                {currentProduct.servings}
+                Net Quantity: <strong>{displayNetQuantity}</strong> • {displayServings}
               </p>
             </div>
 
             <p className="text-sm sm:text-base text-[#F7F3E8]/80 leading-relaxed">
               {currentProduct.detailedDescription}
             </p>
+
+            {/* Size / Weight Variant Option (500g and 1 Kg) */}
+            {currentProduct.variants && currentProduct.variants.length > 0 && (
+              <div className="p-3.5 rounded-2xl bg-[#163020]/70 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-white/80 uppercase tracking-wider">
+                  <span>Choose Weight / Size:</span>
+                  {activeVariant?.badge && (
+                    <span className="text-[10px] text-[#E8D85B] font-semibold">
+                      {activeVariant.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {currentProduct.variants.map((v: any) => {
+                    const isSelected = activeVariant?.id === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSelectedVariantId(v.id)}
+                        className={`py-2.5 px-3 rounded-xl text-left transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-[#E8D85B] text-[#0D1711] border-[#E8D85B] shadow-md shadow-[#E8D85B]/20 scale-[1.02]'
+                            : 'bg-white/5 text-[#F7F3E8] border-white/15 hover:border-[#E8D85B]/50 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-extrabold text-xs">{v.label}</span>
+                          <span className={`text-xs font-mono font-bold ${isSelected ? 'text-[#0D1711]' : 'text-[#E8D85B]'}`}>
+                            ₹{v.price}
+                          </span>
+                        </div>
+                        <span className={`text-[10px] block mt-0.5 ${isSelected ? 'text-[#0D1711]/80' : 'text-white/60'}`}>
+                          {v.sublabel} ({v.servings.split('(')[0].trim()})
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Highlights */}
             <div className="space-y-2">
@@ -187,32 +250,47 @@ export const ProductShowcaseSection: React.FC = () => {
               ))}
             </div>
 
-            {/* Pricing Section */}
+            {/* Pricing Section (Dynamically updated) */}
             <div className="pt-4 border-t border-white/10 flex items-baseline space-x-3">
               <span className="text-3xl sm:text-4xl font-black text-[#E8D85B]">
-                ₹{currentProduct.price}
+                ₹{displayPrice}
               </span>
               <span className="text-base sm:text-lg text-white/50 line-through">
-                ₹{currentProduct.originalPrice}
+                ₹{displayOriginalPrice}
               </span>
               <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
-                Save ₹{currentProduct.originalPrice - currentProduct.price}
+                Save ₹{savings}
               </span>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
-                onClick={() => buyNow(currentProduct)}
+                onClick={() => buyNow(variantConfiguredProduct)}
                 className="flex-1 py-3.5 px-6 rounded-full bg-gradient-to-r from-[#E8D85B] via-[#D7A84B] to-[#E8D85B] text-[#0D1711] font-bold text-sm hover:scale-105 transition-transform shadow-lg shadow-[#E8D85B]/20 text-center cursor-pointer"
               >
                 Buy Now (Instant Checkout)
               </button>
               <button
-                onClick={() => addToCart(currentProduct)}
+                onClick={() => addToCart(variantConfiguredProduct)}
                 className="py-3.5 px-6 rounded-full glass-panel border border-white/20 hover:border-[#E8D85B]/50 text-[#F7F3E8] font-semibold text-sm transition-colors text-center cursor-pointer"
               >
                 Add to Cart
+              </button>
+            </div>
+
+            {/* Direct Callback / Phone Order Assistance */}
+            <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-white/70 gap-2 border-t border-white/10 mt-2">
+              <span className="flex items-center space-x-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>In Stock & Ready for Express Dispatch</span>
+              </span>
+              <button
+                onClick={() => setIsBookingOpen(true)}
+                className="text-[#E8D85B] hover:text-white font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer self-start sm:self-auto"
+              >
+                <PhoneCall className="w-3.5 h-3.5 text-[#E8D85B]" />
+                <span>Prefer to order by phone? Get Callback</span>
               </button>
             </div>
           </div>

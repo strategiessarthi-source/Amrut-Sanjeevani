@@ -109,16 +109,16 @@ const INITIAL_ORDERS: Order[] = [
     items: [
       {
         productId: 'as-single-500',
-        productName: 'Amrut Sanjeevani Original Blend',
-        netQuantity: '500 ml',
+        productName: 'Amrut Sanjeevani Original Blend (500g)',
+        netQuantity: '500g / 500 ml',
         quantity: 2,
-        price: 899
+        price: 459
       }
     ],
-    subtotal: 1798,
+    subtotal: 918,
     discount: 0,
     shipping: 0,
-    total: 1798,
+    total: 918,
     paymentMethod: 'Card',
     paymentStatus: 'Paid',
     orderStatus: 'Delivered',

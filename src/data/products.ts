@@ -7,16 +7,38 @@ export const PRODUCTS: Product[] = [
     tagline: 'Natural Daily Wellness Blend',
     description: 'A thoughtfully crafted blend of fresh lemon, aged garlic, mountain ginger, and raw apple cider vinegar.',
     detailedDescription: 'Amrut Sanjeevani Original Blend brings together four time-honored ingredients in precise harmonic balance. Crafted without added refined sugars, artificial preservatives, or chemical thickeners, it delivers a crisp, invigorating morning wellness ritual designed for the modern rhythm of life.',
-    netQuantity: '500 ml',
+    netQuantity: '500g / 500 ml',
     servings: '30 - 35 Servings (1 Month Supply)',
-    price: 899,
-    originalPrice: 1199,
+    price: 459,
+    originalPrice: 649,
     rating: 4.9,
     reviewCount: 342,
     inStock: true,
     stockCount: 84,
     badge: 'Most Popular',
     isPopular: true,
+    variants: [
+      {
+        id: '500g',
+        label: '500g',
+        sublabel: '500 ml',
+        netQuantity: '500g / 500 ml',
+        servings: '30 - 35 Servings (1 Month Supply)',
+        price: 459,
+        originalPrice: 649,
+        badge: 'Popular Size'
+      },
+      {
+        id: '1kg',
+        label: '1 Kg',
+        sublabel: '1000 ml',
+        netQuantity: '1 Kg / 1000 ml',
+        servings: '60 - 70 Servings (2 Months Supply)',
+        price: 899,
+        originalPrice: 1299,
+        badge: 'Best Value • Save ₹400'
+      }
+    ],
     image: '/product-jar.jpg',
     gallery: [
       '/product-jar.jpg',

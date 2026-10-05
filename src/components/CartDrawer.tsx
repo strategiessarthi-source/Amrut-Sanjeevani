@@ -311,11 +311,21 @@ export const ShopView: React.FC = () => {
     'as-duo-pack': 1,
     'as-family-trio': 1
   });
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({
+    'as-single-500': '500g'
+  });
 
   const handleQtyChange = (id: string, delta: number) => {
     setQuantities((prev) => ({
       ...prev,
       [id]: Math.max(1, (prev[id] || 1) + delta)
+    }));
+  };
+
+  const handleVariantSelect = (productId: string, variantId: string) => {
+    setSelectedVariants((prev) => ({
+      ...prev,
+      [productId]: variantId
     }));
   };
 
@@ -361,7 +371,7 @@ export const ShopView: React.FC = () => {
                   : 'glass-panel text-white/80 hover:text-white'
               }`}
             >
-              Single Bottle (500ml)
+              Single Bottle (500g / 1 Kg)
             </button>
             <button
               onClick={() => setFilter('bundle')}
@@ -380,6 +390,27 @@ export const ShopView: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {filteredProducts.map((prod: any) => {
             const currentQty = quantities[prod.id] || 1;
+            const currentVariantId = selectedVariants[prod.id] || (prod.variants ? prod.variants[0].id : null);
+            const activeVariant = prod.variants ? prod.variants.find((v: any) => v.id === currentVariantId) || prod.variants[0] : null;
+
+            const displayPrice = activeVariant ? activeVariant.price : prod.price;
+            const displayOriginalPrice = activeVariant ? activeVariant.originalPrice : prod.originalPrice;
+            const displayNetQuantity = activeVariant ? activeVariant.netQuantity : prod.netQuantity;
+            const displayServings = activeVariant ? activeVariant.servings : prod.servings;
+            const savingsAmount = displayOriginalPrice - displayPrice;
+
+            // Product entity configured with active variant for cart / modals
+            const variantConfiguredProduct: any = activeVariant ? {
+              ...prod,
+              id: `${prod.id}-${activeVariant.id}`,
+              name: `${prod.name} (${activeVariant.label})`,
+              netQuantity: activeVariant.netQuantity,
+              servings: activeVariant.servings,
+              price: activeVariant.price,
+              originalPrice: activeVariant.originalPrice,
+              selectedVariantId: activeVariant.id,
+            } : prod;
+
             return (
               <div
                 key={prod.id}
@@ -394,7 +425,7 @@ export const ShopView: React.FC = () => {
                 <div>
                   {/* Image Container */}
                   <div
-                    onClick={() => setSelectedProductModal(prod)}
+                    onClick={() => setSelectedProductModal(variantConfiguredProduct)}
                     className="relative w-full aspect-square rounded-2xl overflow-hidden mb-6 bg-[#0D1711] p-1 flex items-center justify-center cursor-pointer group-hover:shadow-2xl group-hover:shadow-[#E8D85B]/15 transition-all duration-300 border border-white/5 group-hover:border-[#E8D85B]/30"
                   >
                     <img
@@ -413,29 +444,73 @@ export const ShopView: React.FC = () => {
                     {prod.tagline}
                   </span>
                   <h3
-                    onClick={() => setSelectedProductModal(prod)}
+                    onClick={() => setSelectedProductModal(variantConfiguredProduct)}
                     className="text-xl sm:text-2xl font-bold text-[#F7F3E8] font-serif-luxury cursor-pointer hover:text-[#E8D85B] transition-colors"
                   >
                     {prod.name}
                   </h3>
                   <p className="text-xs text-white/60 mt-1">
-                    Net Quantity: <strong>{prod.netQuantity}</strong> • {prod.servings}
+                    Net Quantity: <strong className="text-[#E8D85B]">{displayNetQuantity}</strong> • {displayServings}
                   </p>
 
                   <p className="text-xs text-white/80 mt-3 line-clamp-2 leading-relaxed">
                     {prod.description}
                   </p>
 
-                  {/* Price Row */}
-                  <div className="mt-6 flex items-baseline space-x-2">
+                  {/* Weight / Size Variant Selector if variants exist */}
+                  {prod.variants && prod.variants.length > 0 && (
+                    <div className="mt-5 p-3 rounded-2xl bg-[#163020]/70 border border-white/10 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-white/80 uppercase tracking-wider">
+                        <span>Select Size / Weight:</span>
+                        {activeVariant?.badge && (
+                          <span className="text-[10px] text-[#E8D85B] font-semibold">
+                            {activeVariant.badge}
+                          </span>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {prod.variants.map((v: any) => {
+                          const isSelected = activeVariant?.id === v.id;
+                          return (
+                            <button
+                              key={v.id}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleVariantSelect(prod.id, v.id);
+                              }}
+                              className={`py-2 px-2.5 rounded-xl text-left transition-all cursor-pointer border ${
+                                isSelected
+                                  ? 'bg-[#E8D85B] text-[#0D1711] border-[#E8D85B] shadow-md shadow-[#E8D85B]/20 scale-[1.02]'
+                                  : 'bg-white/5 text-[#F7F3E8] border-white/15 hover:border-[#E8D85B]/50 hover:bg-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="font-extrabold text-xs">{v.label}</span>
+                                <span className={`text-[11px] font-mono font-bold ${isSelected ? 'text-[#0D1711]' : 'text-[#E8D85B]'}`}>
+                                  ₹{v.price}
+                                </span>
+                              </div>
+                              <span className={`text-[10px] block mt-0.5 ${isSelected ? 'text-[#0D1711]/80' : 'text-white/60'}`}>
+                                {v.sublabel}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Price Row (Dynamically updated) */}
+                  <div className="mt-5 flex items-baseline space-x-2">
                     <span className="text-2xl sm:text-3xl font-extrabold text-[#E8D85B]">
-                      ₹{prod.price}
+                      ₹{displayPrice}
                     </span>
                     <span className="text-sm text-white/50 line-through">
-                      ₹{prod.originalPrice}
+                      ₹{displayOriginalPrice}
                     </span>
                     <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full ml-auto">
-                      Save ₹{prod.originalPrice - prod.price}
+                      Save ₹{savingsAmount}
                     </span>
                   </div>
                 </div>
@@ -468,14 +543,14 @@ export const ShopView: React.FC = () => {
                   {/* Dual Action Buttons */}
                   <div className="grid grid-cols-2 gap-2">
                     <button
-                      onClick={() => addToCart(prod, currentQty)}
+                      onClick={() => addToCart(variantConfiguredProduct, currentQty)}
                       className="py-3 px-3 rounded-xl glass-panel border border-white/20 hover:border-[#E8D85B]/50 text-white font-semibold text-xs transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
                     >
                       <ShoppingBag className="w-3.5 h-3.5 text-[#E8D85B]" />
                       <span>ADD TO CART</span>
                     </button>
                     <button
-                      onClick={() => buyNow(prod, currentQty)}
+                      onClick={() => buyNow(variantConfiguredProduct, currentQty)}
                       className="py-3 px-3 rounded-xl bg-gradient-to-r from-[#E8D85B] via-[#D7A84B] to-[#E8D85B] text-[#0D1711] font-bold text-xs hover:scale-105 transition-transform flex items-center justify-center space-x-1.5 shadow-md shadow-[#E8D85B]/20 cursor-pointer"
                     >
                       <span>BUY NOW</span>

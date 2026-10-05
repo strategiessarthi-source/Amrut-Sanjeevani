@@ -1,3 +1,14 @@
+export interface ProductVariant {
+  id: string;
+  label: string;
+  sublabel: string;
+  netQuantity: string;
+  servings: string;
+  price: number;
+  originalPrice: number;
+  badge?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -24,6 +35,8 @@ export interface Product {
   }[];
   usageDirections: string;
   storageInfo: string;
+  variants?: ProductVariant[];
+  selectedVariantId?: string;
 }
 
 export interface CartItem {
@@ -96,4 +109,35 @@ export interface FaqItem {
   question: string;
   answer: string;
   category: 'General' | 'Ingredients' | 'Usage' | 'Ordering & Shipping';
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  memberSince: string;
+  loyaltyPoints: number;
+  tier: 'Silver' | 'Gold' | 'Platinum';
+  savedPhone?: string;
+  savedCity?: string;
+}
+
+export interface LeadCapture {
+  id: string;
+  name: string;
+  email: string;
+  countryCode: string;
+  mobile: string;
+  wellnessGoal: string;
+  preferredTime: string;
+  notes?: string;
+  createdAt: string;
+  status: 'Pending Callback' | 'Contacted' | 'Consultation Scheduled';
+}
+
+export interface CountryCodeOption {
+  code: string;
+  country: string;
+  flag: string;
+  digits: number;
 }

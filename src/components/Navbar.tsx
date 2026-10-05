@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { 
   ShoppingBag, 
   Search, 
@@ -11,7 +12,8 @@ import {
   Sparkles, 
   MessageCircle, 
   ArrowRight,
-  Leaf
+  Leaf,
+  PhoneCall
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -28,6 +30,7 @@ export const Navbar: React.FC = () => {
     generateWhatsAppLink 
   } = useCart();
   
+  const { user, isAuthenticated } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -84,10 +87,21 @@ export const Navbar: React.FC = () => {
             <span className="text-white/20 hidden md:inline">|</span>
             <button
               onClick={() => setIsAccountOpen(true)}
-              className="flex items-center space-x-1 text-xs text-[#F7F3E8]/80 hover:text-[#E8D85B] transition-colors cursor-pointer"
+              className="flex items-center space-x-1.5 text-xs text-[#F7F3E8] hover:text-[#E8D85B] transition-colors cursor-pointer"
             >
-              <User className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">My Account</span>
+              {isAuthenticated && user ? (
+                <>
+                  <span className="w-4 h-4 rounded-full bg-[#E8D85B] text-[#0D1711] font-bold text-[9px] flex items-center justify-center shrink-0">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="font-semibold text-[#E8D85B]">Hi, {user.name.split(' ')[0]}</span>
+                </>
+              ) : (
+                <>
+                  <User className="w-3.5 h-3.5 text-[#E8D85B]" />
+                  <span>Sign In / My Account</span>
+                </>
+              )}
             </button>
             <span className="text-white/20 hidden md:inline">|</span>
             <button
@@ -183,6 +197,13 @@ export const Navbar: React.FC = () => {
               className="hover:text-[#E8D85B] transition-colors cursor-pointer"
             >
               How To Use
+            </button>
+            <button
+              onClick={() => scrollToSection('consultation')}
+              className="text-[#E8D85B] hover:text-white transition-colors cursor-pointer flex items-center space-x-1 font-bold"
+            >
+              <Sparkles className="w-3 h-3 text-[#E8D85B]" />
+              <span>Consultation</span>
             </button>
             <button
               onClick={() => scrollToSection('testimonials')}
@@ -302,6 +323,13 @@ export const Navbar: React.FC = () => {
                 How To Use
               </button>
               <button
+                onClick={() => scrollToSection('consultation')}
+                className="text-left px-3 py-2 rounded-lg bg-[#E8D85B]/10 text-[#E8D85B] font-semibold flex items-center space-x-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Free Consultation</span>
+              </button>
+              <button
                 onClick={() => scrollToSection('testimonials')}
                 className="text-left px-3 py-2 rounded-lg hover:bg-white/5 text-white/80"
               >
@@ -312,6 +340,16 @@ export const Navbar: React.FC = () => {
                 className="text-left px-3 py-2 rounded-lg hover:bg-white/5 text-white/80"
               >
                 Contact
+              </button>
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsAccountOpen(true);
+                }}
+                className="text-left px-3 py-2 rounded-lg hover:bg-white/5 text-white/80 flex items-center space-x-1.5"
+              >
+                <User className="w-3.5 h-3.5 text-[#E8D85B]" />
+                <span>{isAuthenticated && user ? `Hi, ${user.name.split(' ')[0]}` : 'My Account / Sign In'}</span>
               </button>
             </div>
 
