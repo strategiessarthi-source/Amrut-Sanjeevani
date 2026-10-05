@@ -46,7 +46,7 @@ const INFUSION_STEPS = [
     role: 'One Harmonious Daily Tonic',
     desc: 'Four nature-inspired elements unite in golden perfection, creating a single convenient morning blend.',
     color: '#3E6B45',
-    img: 'https://images.unsplash.com/photo-1546554137-f86b9593a222?auto=format&fit=crop&w=600&q=80',
+    img: '/src/assets/images/complete_blend_elixir_1791221963162.jpg',
     tag: 'Step 05 • The Complete Blend'
   }
 ];

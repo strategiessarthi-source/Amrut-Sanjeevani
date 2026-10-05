@@ -110,24 +110,17 @@ export const HowToUseSection: React.FC = () => {
   const steps = [
     {
       num: '01',
-      title: 'Open & Shake',
-      subtitle: 'Gentle Activation',
-      desc: 'Shake the bottle gently to distribute the active raw botanicals and living Mother cultures evenly.',
-      img: 'https://images.unsplash.com/photo-1546554137-f86b9593a222?auto=format&fit=crop&w=500&q=80'
+      tagline: 'PURE BOTANICALS',
+      title: 'Direct Spoonful',
+      desc: 'Take one spoon of the herbal paste directly or mix it with warm water.',
+      img: '/src/assets/images/herbal_paste_spoon_1791221462454.jpg'
     },
     {
       num: '02',
-      title: 'Measure & Dilute',
-      subtitle: 'Recommended Serving',
-      desc: 'Pour 10ml to 15ml (approx. 1 tablespoon) into a glass of lukewarm or room-temperature water (150ml).',
-      img: '/src/assets/images/apple cider vinegar.jpg'
-    },
-    {
-      num: '03',
+      tagline: 'SUSTAINED WELLNESS',
       title: 'Make It a Routine',
-      subtitle: 'Morning Hydration',
-      desc: 'Sip slowly first thing in the morning on an empty stomach. Enjoy your nourishing breakfast 20-30 minutes later.',
-      img: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=500&q=80'
+      desc: 'Consistency is key. Follow this simple daily practice every morning to build a healthy wellness routine.',
+      img: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80'
     }
   ];
 
@@ -144,12 +137,12 @@ export const HowToUseSection: React.FC = () => {
             Make It Part of Your Routine.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-[#0D1711]/80 leading-relaxed">
-            Three simple steps each morning to awaken your senses and nurture everyday vitality.
+            Simple daily steps each morning to awaken your senses and nurture everyday vitality.
           </p>
         </div>
 
-        {/* 3 Steps Timeline */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Steps Timeline */}
+        <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-8">
           {steps.map((s, idx) => (
             <motion.div
               key={idx}
@@ -157,39 +150,46 @@ export const HowToUseSection: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.15, duration: 0.6 }}
-              className="bg-white rounded-3xl p-6 sm:p-8 border border-[#163020]/10 shadow-lg shadow-[#163020]/5 flex flex-col justify-between relative group hover:shadow-xl transition-all"
+              whileHover={{ y: -6, scale: 1.025 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 border border-[#163020]/10 shadow-lg shadow-[#163020]/5 flex flex-col justify-between relative group hover:shadow-[0_22px_50px_-10px_rgba(62,107,69,0.22)] hover:border-[#3E6B45]/40 transition-all duration-300 overflow-hidden cursor-pointer"
             >
+              {/* Subtle Botanical & Warm Gold Ambient Glow on Hover */}
+              <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-[#3E6B45]/20 via-[#E8D85B]/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none -z-0 blur-[2px]" />
+              <div className="absolute -top-10 -right-10 w-44 h-44 bg-gradient-to-bl from-[#E8D85B]/25 via-[#3E6B45]/15 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
               {/* Step Number Tag */}
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-3xl font-bold font-serif-luxury text-[#3E6B45]">
+              <div className="relative z-10 flex items-center justify-between mb-4">
+                <span className="text-3xl font-bold font-serif-luxury text-[#3E6B45] transition-colors group-hover:text-[#2d5234]">
                   STEP {s.num}
                 </span>
-                <span className="text-[11px] font-semibold text-[#163020]/60 uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-full">
-                  {s.subtitle}
+                <span className="text-[11px] font-bold text-[#3E6B45] uppercase tracking-wider bg-[#3E6B45]/10 border border-[#3E6B45]/20 px-3 py-1 rounded-full group-hover:bg-[#3E6B45]/15 transition-colors">
+                  {s.tagline}
                 </span>
               </div>
 
               {/* Step Image Visual */}
-              <div className="w-full aspect-4/3 rounded-2xl overflow-hidden mb-6 bg-slate-100">
+              <div className="relative z-10 w-full aspect-4/3 rounded-2xl overflow-hidden mb-6 bg-slate-100 shadow-inner">
                 <img
                   src={s.img}
                   alt={s.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
                   referrerPolicy="no-referrer"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
 
-              <div>
-                <h3 className="text-xl font-bold text-[#0D1711] font-serif-luxury">
+              <div className="relative z-10">
+                <h3 className="text-2xl font-bold text-[#0D1711] font-serif-luxury group-hover:text-[#163020] transition-colors">
                   {s.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-[#0D1711]/75 mt-2 leading-relaxed">
+                <p className="text-sm text-[#0D1711]/75 mt-2.5 leading-relaxed">
                   {s.desc}
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-100 flex items-center text-xs font-semibold text-[#3E6B45]">
+              <div className="relative z-10 mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-[#3E6B45]">
                 <span>✓ 30-Second Morning Ritual</span>
+                <span className="text-[#163020]/50 font-normal">Pure & Natural</span>
               </div>
             </motion.div>
           ))}
