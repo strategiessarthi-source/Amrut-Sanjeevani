@@ -7,8 +7,6 @@ import {
   ArrowLeft, 
   CreditCard, 
   QrCode, 
-  Building2, 
-  Banknote, 
   CheckCircle2, 
   ShoppingBag, 
   Tag, 
@@ -43,10 +41,9 @@ export const CheckoutView: React.FC = () => {
     deliveryNotes: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'Card' | 'NetBanking' | 'COD'>('UPI');
+  const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'Card'>('UPI');
   const [upiId, setUpiId] = useState('');
   const [cardDetails, setCardDetails] = useState({ number: '', exp: '', cvv: '', name: '' });
-  const [selectedBank, setSelectedBank] = useState('HDFC Bank');
   const [isProcessing, setIsProcessing] = useState(false);
 
   const indianStates = [
@@ -106,7 +103,7 @@ export const CheckoutView: React.FC = () => {
         shipping,
         total,
         paymentMethod,
-        paymentStatus: paymentMethod === 'COD' ? ('Pending' as const) : ('Paid' as const)
+        paymentStatus: 'Paid' as const
       };
 
       const created = createOrder(orderPayload);
@@ -357,63 +354,35 @@ export const CheckoutView: React.FC = () => {
                   </h3>
                 </div>
 
-                {/* Method Options */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Method Options: UPI / QR and Cards Only */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   
                   {/* UPI */}
                   <div
                     onClick={() => setPaymentMethod('UPI')}
-                    className={`p-4 rounded-2xl border cursor-pointer text-center transition-all ${
+                    className={`p-5 rounded-2xl border cursor-pointer text-center transition-all flex flex-col items-center justify-center space-y-1 ${
                       paymentMethod === 'UPI'
-                        ? 'bg-[#163020] border-[#E8D85B] text-white shadow-lg'
-                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                        ? 'bg-[#163020] border-[#E8D85B] text-white shadow-xl shadow-[#E8D85B]/10 scale-[1.01]'
+                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
                     }`}
                   >
-                    <QrCode className="w-6 h-6 text-[#E8D85B] mx-auto mb-2" />
-                    <span className="text-xs font-bold block">UPI / QR</span>
-                    <span className="text-[10px] text-white/50">GPay, PhonePe, Paytm</span>
+                    <QrCode className="w-7 h-7 text-[#E8D85B] mb-1" />
+                    <span className="text-sm font-bold block text-[#F7F3E8]">UPI / QR</span>
+                    <span className="text-[11px] text-white/60">GPay, PhonePe, Paytm & any UPI App</span>
                   </div>
 
                   {/* Cards */}
                   <div
                     onClick={() => setPaymentMethod('Card')}
-                    className={`p-4 rounded-2xl border cursor-pointer text-center transition-all ${
+                    className={`p-5 rounded-2xl border cursor-pointer text-center transition-all flex flex-col items-center justify-center space-y-1 ${
                       paymentMethod === 'Card'
-                        ? 'bg-[#163020] border-[#E8D85B] text-white shadow-lg'
-                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                        ? 'bg-[#163020] border-[#E8D85B] text-white shadow-xl shadow-[#E8D85B]/10 scale-[1.01]'
+                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
                     }`}
                   >
-                    <CreditCard className="w-6 h-6 text-[#E8D85B] mx-auto mb-2" />
-                    <span className="text-xs font-bold block">Cards</span>
-                    <span className="text-[10px] text-white/50">Visa, Master, RuPay</span>
-                  </div>
-
-                  {/* Net Banking */}
-                  <div
-                    onClick={() => setPaymentMethod('NetBanking')}
-                    className={`p-4 rounded-2xl border cursor-pointer text-center transition-all ${
-                      paymentMethod === 'NetBanking'
-                        ? 'bg-[#163020] border-[#E8D85B] text-white shadow-lg'
-                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
-                    }`}
-                  >
-                    <Building2 className="w-6 h-6 text-[#E8D85B] mx-auto mb-2" />
-                    <span className="text-xs font-bold block">NetBanking</span>
-                    <span className="text-[10px] text-white/50">All Indian Banks</span>
-                  </div>
-
-                  {/* COD */}
-                  <div
-                    onClick={() => setPaymentMethod('COD')}
-                    className={`p-4 rounded-2xl border cursor-pointer text-center transition-all ${
-                      paymentMethod === 'COD'
-                        ? 'bg-[#163020] border-[#E8D85B] text-white shadow-lg'
-                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
-                    }`}
-                  >
-                    <Banknote className="w-6 h-6 text-[#E8D85B] mx-auto mb-2" />
-                    <span className="text-xs font-bold block">Cash on Delivery</span>
-                    <span className="text-[10px] text-white/50">Pay upon arrival</span>
+                    <CreditCard className="w-7 h-7 text-[#E8D85B] mb-1" />
+                    <span className="text-sm font-bold block text-[#F7F3E8]">Credit / Debit Cards</span>
+                    <span className="text-[11px] text-white/60">Visa, Mastercard, RuPay & Amex</span>
                   </div>
 
                 </div>
@@ -472,33 +441,6 @@ export const CheckoutView: React.FC = () => {
                         />
                       </div>
                     </div>
-                  </div>
-                )}
-
-                {paymentMethod === 'NetBanking' && (
-                  <div className="p-4 rounded-2xl bg-[#163020]/60 border border-[#E8D85B]/20 text-xs space-y-2">
-                    <label className="font-bold text-white block">Select Your Bank</label>
-                    <select
-                      value={selectedBank}
-                      onChange={(e) => setSelectedBank(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-[#0D1711] border border-white/20 text-white focus:outline-none focus:border-[#E8D85B]"
-                    >
-                      <option value="HDFC Bank">HDFC Bank</option>
-                      <option value="State Bank of India">State Bank of India (SBI)</option>
-                      <option value="ICICI Bank">ICICI Bank</option>
-                      <option value="Axis Bank">Axis Bank</option>
-                      <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
-                      <option value="Punjab National Bank">Punjab National Bank</option>
-                    </select>
-                  </div>
-                )}
-
-                {paymentMethod === 'COD' && (
-                  <div className="p-4 rounded-2xl bg-[#163020]/60 border border-[#E8D85B]/20 text-xs space-y-1">
-                    <span className="font-bold text-[#E8D85B] block">Cash on Delivery Notice</span>
-                    <p className="text-white/80">
-                      You can pay ₹{total} in cash or via UPI to our courier delivery executive at your doorstep.
-                    </p>
                   </div>
                 )}
 

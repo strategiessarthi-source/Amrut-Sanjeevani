@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useCart } from '../context/CartContext';
+import amrutLogo from '../assets/images/Amrut Sanjeevani logo.png';
 import { MessageCircle, Phone, Mail, Send, CheckCircle2, MapPin, Clock } from 'lucide-react';
 
 export const ContactSection: React.FC = () => {
@@ -64,7 +65,7 @@ export const ContactSection: React.FC = () => {
 
             {/* Direct Phone Call Card */}
             <a
-              href="tel:+919876543210"
+              href="tel:+919823717836"
               className="p-6 rounded-3xl bg-white border border-[#163020]/10 shadow-md hover:shadow-xl transition-all flex items-center space-x-4 group cursor-pointer block"
             >
               <div className="w-14 h-14 rounded-2xl bg-[#163020]/10 flex items-center justify-center text-[#163020] group-hover:scale-110 transition-transform">
@@ -73,7 +74,7 @@ export const ContactSection: React.FC = () => {
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#163020]/60">Toll-Free Support</span>
                 <h4 className="text-lg font-bold text-[#0D1711]">Call Us</h4>
-                <p className="text-xs text-[#0D1711]/70 mt-0.5">+91 98765 43210 (9:00 AM – 7:00 PM IST)</p>
+                <p className="text-xs text-[#0D1711]/70 mt-0.5">+91 9823717836 (9:00 AM – 7:00 PM IST)</p>
               </div>
             </a>
 
@@ -239,10 +240,12 @@ export const Footer: React.FC = () => {
           {/* Left Brand Bio */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E8D85B] to-[#D7A84B] p-[2px]">
-                <div className="w-full h-full bg-[#0D1711] rounded-full flex items-center justify-center text-[#E8D85B] font-bold text-sm">
-                  AS
-                </div>
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#E8D85B] to-[#D7A84B] p-[1.5px] overflow-hidden shrink-0 flex items-center justify-center shadow-lg shadow-[#E8D85B]/20">
+                <img
+                  src={amrutLogo}
+                  alt="Amrut Sanjeevani Logo"
+                  className="w-full h-full object-cover rounded-full bg-[#0D1711]"
+                />
               </div>
               <div>
                 <h3 className="text-lg font-bold tracking-[0.2em] text-[#F7F3E8] uppercase leading-none">
@@ -260,13 +263,13 @@ export const Footer: React.FC = () => {
 
             <div className="pt-2">
               <a
-                href={generateWhatsAppLink()}
+                href="https://wa.me/919823717836"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center space-x-2 text-xs font-bold px-4 py-2 rounded-full bg-[#25D366]/20 border border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/30 transition-colors"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
-                <span>WhatsApp Helpline: +91 98765 43210</span>
+                <span>WhatsApp Helpline: +91 9823717836</span>
               </a>
             </div>
           </div>

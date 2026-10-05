@@ -327,7 +327,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const generateWhatsAppLink = (product?: Product, qty = 1, customNote?: string): string => {
-    const phone = '919876543210';
+    const phone = '919823717836';
+    if (!product && !customNote && cart.length === 0) {
+      return `https://wa.me/${phone}`;
+    }
     let message = `Hello Amrut Sanjeevani Team,\n\n`;
     if (product) {
       message += `I would like to order:\nProduct: ${product.name} (${product.netQuantity})\nQuantity: ${qty}\nPrice: ₹${product.price * qty}\n\n`;

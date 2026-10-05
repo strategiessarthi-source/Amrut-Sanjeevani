@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import amrutLogo from '../assets/images/Amrut Sanjeevani logo.png';
 import { 
   ShoppingBag, 
   Search, 
@@ -77,6 +78,16 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <a
+              href="https://wa.me/919823717836"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:flex items-center space-x-1.5 text-xs text-[#25D366] hover:text-[#E8D85B] transition-colors"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>WhatsApp: +91 9823717836</span>
+            </a>
+            <span className="text-white/20 hidden lg:inline">|</span>
             <button
               onClick={() => setIsTrackOrderOpen(true)}
               className="flex items-center space-x-1 text-xs text-[#F7F3E8]/80 hover:text-[#E8D85B] transition-colors cursor-pointer"
@@ -131,10 +142,12 @@ export const Navbar: React.FC = () => {
             }}
             className="flex items-center space-x-3.5 group cursor-pointer text-left"
           >
-            <div className="w-10 h-10 rounded-full honey-gradient p-[2px] shadow-lg shadow-[#E8D85B]/15 transition-transform group-hover:scale-105">
-              <div className="w-full h-full bg-[#0D1711] rounded-full flex items-center justify-center">
-                <Leaf className="w-5 h-5 text-[#E8D85B]" />
-              </div>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full honey-gradient p-[1.5px] shadow-lg shadow-[#E8D85B]/20 transition-transform group-hover:scale-105 shrink-0 overflow-hidden flex items-center justify-center">
+              <img
+                src={amrutLogo}
+                alt="Amrut Sanjeevani Logo"
+                className="w-full h-full object-cover rounded-full bg-[#0D1711]"
+              />
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-xl sm:text-2xl font-bold tracking-tighter serif-text text-white">
@@ -364,13 +377,13 @@ export const Navbar: React.FC = () => {
                 Book Order (Manual Confirmation)
               </button>
               <a
-                href={generateWhatsAppLink()}
+                href="https://wa.me/919823717836"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-2.5 rounded-lg bg-[#25D366]/20 border border-[#25D366]/40 text-[#25D366] flex items-center justify-center space-x-2 text-sm font-medium"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Order on WhatsApp</span>
+                <span>WhatsApp: +91 9823717836</span>
               </a>
             </div>
           </div>
